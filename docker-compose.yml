@@ -1,0 +1,40 @@
+version: "3.3"
+
+services:
+  calibre:
+    image: ghcr.io/linuxserver/calibre
+    container_name: calibre
+    environment:
+      - PUID=$PUID
+      - PGID=$PGID
+    volumes:
+      - ./calibre/config:/config
+      - ./calibre/plugins:/plugins
+      - $UPLOAD_FOLDER:/uploads
+      - $LIBRARY_FOLDER:/Calibre_Library
+    ports:
+      - $CALIBRE_PORT1:8080
+      - $CALIBRE_PORT2:8081
+    restart: unless-stopped
+    networks:
+      - ebooks
+  calibre-web:
+    image: ghcr.io/linuxserver/calibre-web
+    container_name: calibre-web
+    environment:
+      - PUID=$PUID
+      - PGID=$PGID
+    volumes:
+      - ./calibre-web/config:/config
+      - $LIBRARY_FOLDER:/books
+    restart: unless-stopped
+    depends_on:
+      - calibre
+    ports:
+      - $CALIBRE_WEB_PORT:8083
+    networks:
+      - ebooks
+
+networks:
+  ebooks:
+    driver: bridge
