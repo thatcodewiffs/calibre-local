@@ -10,11 +10,11 @@ services:
     volumes:
       - ./calibre/config:/config
       - ./calibre/plugins:/plugins
+      - ./calibre/data:/Calibre_Library
       - $UPLOAD_FOLDER:/uploads
-      - $LIBRARY_FOLDER:/Calibre_Library
     ports:
-      - $CALIBRE_PORT1:8080
-      - $CALIBRE_PORT2:8081
+      - 8080:8080
+      - 8081:8081
     restart: unless-stopped
     networks:
       - ebooks
@@ -26,14 +26,44 @@ services:
       - PGID=$PGID
     volumes:
       - ./calibre-web/config:/config
-      - $LIBRARY_FOLDER:/books
+      - ./calibre/data:/books
     restart: unless-stopped
     depends_on:
       - calibre
     ports:
-      - $CALIBRE_WEB_PORT:8083
+      - 8083:8083
     networks:
       - ebooks
+  syncsource:
+    image: lscr.io/linuxserver/syncthing:latest
+    container_name: syncsource
+    environment:
+      - PUID=$PUID
+      - PGID=$PGID
+    volumes:
+      - ./syncthing/config-source:/config
+      - ./calibre/data:/data1
+    ports:
+      - 8384:8384
+      - 22000:22000/tcp
+      - 22000:22000/udp
+      - 21027:21027/udp
+    restart: unless-stopped
+  synctarget:
+    image: lscr.io/linuxserver/syncthing:latest
+    container_name: synctarget
+    environment:
+      - PUID=$PUID
+      - PGID=$PGID
+    volumes:
+      - ./syncthing/config-target:/config
+      - $SYNC_FOLDER:/data1
+    ports:
+      - 8385:8384
+      - 22001:22000/tcp
+      - 22001:22000/udp
+      - 21028:21027/udp
+    restart: unless-stopped
 
 networks:
   ebooks:
