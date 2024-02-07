@@ -11,7 +11,7 @@ services:
       - ./calibre/config:/config
       - ./calibre/plugins:/plugins
       - ./calibre/data:/Calibre_Library
-      - $UPLOAD_FOLDER:/uploads
+      - ./calibre/uploads:/uploads
     ports:
       - 8080:8080
       - 8081:8081
@@ -42,7 +42,8 @@ services:
       - PGID=$PGID
     volumes:
       - ./syncthing/config-source:/config
-      - ./calibre/data:/data1
+      - ./calibre/data:/books
+      - ./calibre/uploads:/uploads
     ports:
       - 8384:8384
       - 22000:22000/tcp
@@ -57,7 +58,8 @@ services:
       - PGID=$PGID
     volumes:
       - ./syncthing/config-target:/config
-      - $SYNC_FOLDER:/data1
+      - $SYNC_FOLDER:/books
+      - $UPLOAD_FOLDER:/uploads
     ports:
       - 8385:8384
       - 22001:22000/tcp
